@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="assets_frontend" inherit_id="website.assets_frontend">
+            <xpath expr="link[last()]" position="after">
+                <link rel="stylesheet" type="text/scss" href="/app_social_login/static/src/scss/website_profile.scss"/>
+            </xpath>
+        </template>
+
+        <template id="user_profile_header" inherit_id="website_profile.user_profile_header">
+            <xpath expr="//small" position="replace">
+            </xpath>
+        </template>
+
+        <template id="user_profile_content" inherit_id="website_profile.user_profile_content">
+            <xpath expr="//div[hasclass('o_wprofile_sidebar')]/../../div[2]" position="attributes">
+                <attribute name="class">col-12 col-md-12 col-lg-12</attribute>
+            </xpath>
+
+            <xpath expr="//div[hasclass('o_wprofile_sidebar')]/.." position="replace">
+            </xpath>
+
+            <xpath expr="//div[@id='profile_about_badge']" position="replace">
+            </xpath>
+
+            <xpath expr="//t[@t-if='channel']" position="replace">
+            </xpath>
+
+            <xpath expr="//t[@t-if='forum']" position="replace">
+                <li t-if="count_questions &gt; 0" class="nav-item">
+                    <a role="tab" aria-controls="questions" href="#questions" class="nav-link o_wprofile_navlink" data-toggle="tab"><t t-esc="count_questions"/> Questions</a>
+                </li>
+                <li t-if="count_answers &gt; 0" class="nav-item">
+                    <a role="tab" aria-controls="answers" href="#answers" class="nav-link o_wprofile_navlink" data-toggle="tab"><t t-esc="count_answers"/> Answers</a>
+                </li>
+                <li t-if="uid == user.id" class="nav-item">
+                    <a role="tab" aria-controls="activity" href="#activity" class="nav-link o_wprofile_navlink" data-toggle="tab">Activity</a>
+                </li>
+                <li t-if="uid == user.id" class="nav-item">
+                    <a role="tab" aria-controls="votes" href="#votes" class="nav-link o_wprofile_navlink" data-toggle="tab">Votes</a>
+                </li>
+            </xpath>
+
+            <xpath expr="//ul[@id='profile_extra_info_tablist']" position="inside">
+                <li class="nav-item">
+                    <a t-if="user_events" role="tab" aria-controls="events" href="#events"
+                       class="nav-link o_wprofile_navlink"
+                       data-toggle="tab">Events</a>
+                </li>
+                <li class="nav-item">
+                    <a t-if="user_blogs" role="tab" aria-controls="blogs" href="#blogs"
+                       class="nav-link o_wprofile_navlink"
+                       data-toggle="tab">Blogs</a>
+                </li>
+                <li class="nav-item">
+                    <a t-if="user_products" role="tab" aria-controls="products" href="#products"
+                       class="nav-link o_wprofile_navlink"
+                       data-toggle="tab">Products</a>
+                </li>
+            </xpath>
+
+            <xpath expr="//div[@id='profile_extra_info_tabcontent']" position="inside">
+                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="events">
+                    <div class="mb32">
+                        <t t-if="user_events">
+                            <h5 class="border-bottom pb-1">
+                                <i class="fa fa-globe mr-2"/> Events
+                            </h5>
+                            <ul class="list-group mb-3">
+                                <li t-foreach="user_events" t-as="event_dict"
+                                    class="list-group-item d-flex justify-content-between">
+                                    <a t-att-href="event_dict['url']">
+                                        <i t-if="not event_dict['event'].website_published"
+                                           class="fa fa-ban text-danger mr-1" role="img" aria-label="Unpublished"
+                                           title="Unpublished"/>
+                                        <span t-esc="event_dict['event'].name"
+                                              t-attf-class="#{(not event_dict['event'].website_published) and 'text-danger' or ''}"/>
+                                    </a>
+                                    <span t-esc="event_dict['date']"/>
+                                </li>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="blogs">
+                    <div class="mb32">
+                       <t t-if="user_blogs">
+                            <h5 class="border-bottom pb-1">
+                                <i class="fa fa-globe mr-2"/> Blogs
+                            </h5>
+
+                            <ul class="list-group mb-3">
+                                <li t-foreach="user_blogs" t-as="blog_dict"
+                                    class="list-group-item d-flex justify-content-between">
+                                    <a t-att-href="blog_dict['url']">
+                                        <span t-esc="blog_dict['blog'].name"/>
+                                    </a>
+                                    <span t-esc="blog_dict['date']"/>
+                                </li>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="products">
+                    <div class="mb32">
+                        <t t-if="user_products">
+                            <h5 class="border-bottom pb-1">
+                                <i class="fa fa-globe mr-2"/> Products
+                            </h5>
+
+                            <ul class="list-group mb-3">
+                                <li t-foreach="user_products" t-as="product_dict"
+                                    class="list-group-item d-flex justify-content-between">
+                                    <a t-att-href="product_dict['url']">
+                                        <span t-esc="product_dict['product'].name"/>
+                                    </a>
+                                    <span t-esc="product_dict['date']"/>
+                                </li>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+            </xpath>
+        </template>
+
+        <template id="user_profile_sub_nav" inherit_id="website_profile.user_profile_sub_nav">
+            <xpath expr="//div" position="replace">
+            </xpath>
+        </template>
+    </data>
+</odoo>
