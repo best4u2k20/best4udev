@@ -111,7 +111,7 @@ class WebsiteContact(WebsiteProfile):
         self._add_user_events(user, values)
         self._add_user_blogs(user, values)
         self._add_user_products(user, values)
-
+        self._add_user_favorites(user, values)
         return values
 
     @http.route(['/profile/users',
