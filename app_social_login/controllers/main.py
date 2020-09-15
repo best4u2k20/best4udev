@@ -92,6 +92,19 @@ class WebsiteContact(WebsiteProfile):
                 "product": product,
                 "url": product.website_url})
 
+    def _add_user_favorites(self, user, values):
+        favorites = request.env['product.wishlist'].with_context(display_default_code=False)\
+            .sudo()\
+            .search([("partner_id", "=", user.partner_id.id), ('website_id', '=', request.website.id)]).product_id
+
+        values['user_favorites'] = []
+
+        for product in favorites:
+            values['user_favorites'].append({
+                "date": self.get_formated_product_date(product),
+                "product": product,
+                "url": product.website_url})
+
     def _prepare_user_profile_values(self, user, **post):
         values = super(WebsiteContact, self)._prepare_user_profile_values(user, **post)
 

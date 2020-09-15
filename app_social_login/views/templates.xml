@@ -57,6 +57,11 @@
                        class="nav-link o_wprofile_navlink"
                        data-toggle="tab">Products</a>
                 </li>
+                <li class="nav-item">
+                    <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#favorites"
+                       class="nav-link o_wprofile_navlink"
+                       data-toggle="tab">Favorites</a>
+                </li>
             </xpath>
 
             <xpath expr="//div[@id='profile_extra_info_tabcontent']" position="inside">
@@ -112,6 +117,26 @@
 
                             <ul class="list-group mb-3">
                                 <li t-foreach="user_products" t-as="product_dict"
+                                    class="list-group-item d-flex justify-content-between">
+                                    <a t-att-href="product_dict['url']">
+                                        <span t-esc="product_dict['product'].name"/>
+                                    </a>
+                                    <span t-esc="product_dict['date']"/>
+                                </li>
+                            </ul>
+                        </t>
+                    </div>
+                </div>
+
+                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="favorites">
+                    <div class="mb32">
+                        <t t-if="user_favorites">
+                            <h5 class="border-bottom pb-1">
+                                <i class="fa fa-globe mr-2"/> Favorites
+                            </h5>
+
+                            <ul class="list-group mb-3">
+                                <li t-foreach="user_favorites" t-as="product_dict"
                                     class="list-group-item d-flex justify-content-between">
                                     <a t-att-href="product_dict['url']">
                                         <span t-esc="product_dict['product'].name"/>
