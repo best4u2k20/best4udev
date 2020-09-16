@@ -58,3 +58,16 @@
     }
 }
 
+.o_wprofile_pict {
+    @include size(100%);
+    padding-top: 100%;
+    background-size: cover;
+    background-position: center;
+
+    @include media-breakpoint-up(md)  {
+        padding-top: 100%;
+        border: 1px solid darken($primary, 10%);
+        border-bottom-width: 0;
+    }
+}
+
