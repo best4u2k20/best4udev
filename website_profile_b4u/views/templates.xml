@@ -3,7 +3,8 @@
     <data>
         <template id="assets_frontend" inherit_id="website.assets_frontend">
             <xpath expr="link[last()]" position="after">
-                <link rel="stylesheet" type="text/scss" href="/website_profile_b4u/static/src/scss/website_profile.scss"/>
+                <link rel="stylesheet" type="text/scss"
+                      href="/website_profile_b4u/static/src/scss/website_profile.scss"/>
             </xpath>
         </template>
 
@@ -26,25 +27,25 @@
             <xpath expr="//ul[@id='profile_extra_info_tablist']" position="replace">
                 <ul class="nav nav-tabs o_wprofile_nav_tabs flex-nowrap" role="tablist" id="profile_extra_info_tablist">
                     <li class="nav-item">
-                        <a t-if="user_products" role="tab" aria-controls="products" href="#products"
+                        <a t-if="user_products" role="tab" aria-controls="products" href="#profile_tab_content_products"
                            class="nav-link o_wprofile_navlink active"
                            data-toggle="tab">Stores</a>
                     </li>
 
                     <li class="nav-item">
-                        <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#favorites"
+                        <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#profile_tab_content_favorites"
                            t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products else ''}"
                            data-toggle="tab">Likes</a>
                     </li>
 
                     <li class="nav-item">
-                        <a t-if="user_blogs" role="tab" aria-controls="blogs" href="#blogs"
+                        <a t-if="user_blogs" role="tab" aria-controls="blogs" href="#profile_tab_content_blogs"
                            t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products and not user_favorites else ''}"
                            data-toggle="tab">Videos</a>
                     </li>
 
                     <li class="nav-item">
-                        <a t-if="user_events" role="tab" aria-controls="events" href="#events"
+                        <a t-if="user_events" role="tab" aria-controls="events" href="#profile_tab_content_events"
                            t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products and not user_favorites and not user_blogs else ''}"
                            data-toggle="tab">Events</a>
                     </li>
@@ -58,88 +59,89 @@
             </xpath>
 
             <xpath expr="//div[@id='profile_extra_info_tabcontent']" position="inside">
-                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="events">
+                <div t-if="user_products" id="profile_tab_content_products" role="tabpanel"
+                     class="tab-pane active">
                     <div class="mb32">
-                        <t t-if="user_events">
-                            <h5 class="border-bottom pb-1">
-                                <i class="fa fa-globe mr-2"/> Events
-                            </h5>
-                            <ul class="list-group mb-3">
-                                <li t-foreach="user_events" t-as="event_dict"
-                                    class="list-group-item d-flex justify-content-between">
-                                    <a t-att-href="event_dict['url']">
-                                        <i t-if="not event_dict['event'].website_published"
-                                           class="fa fa-ban text-danger mr-1" role="img" aria-label="Unpublished"
-                                           title="Unpublished"/>
-                                        <span t-esc="event_dict['event'].name"
-                                              t-attf-class="#{(not event_dict['event'].website_published) and 'text-danger' or ''}"/>
-                                    </a>
-                                    <span t-esc="event_dict['date']"/>
-                                </li>
-                            </ul>
-                        </t>
+                        <h5 class="border-bottom pb-1">
+                            <i class="fa fa-globe mr-2"/> Store
+                        </h5>
+                        <ul class="list-group mb-3">
+                            <li t-foreach="user_products" t-as="product_dict"
+                                class="list-group-item d-flex justify-content-between">
+                                <a t-att-href="product_dict['url']">
+                                    <span t-esc="product_dict['product'].name"/>
+                                </a>
+                                <span t-esc="product_dict['date']"/>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="blogs">
+                <div t-if="user_favorites" id="profile_tab_content_favorites" role="tabpanel"
+                     t-attf-class="tab-pane #{'active' if not user_products else ''}">
                     <div class="mb32">
-                       <t t-if="user_blogs">
-                            <h5 class="border-bottom pb-1">
-                                <i class="fa fa-globe mr-2"/> Videos
-                            </h5>
-
-                            <ul class="list-group mb-3">
-                                <li t-foreach="user_blogs" t-as="blog_dict"
-                                    class="list-group-item d-flex justify-content-between">
-                                    <a t-att-href="blog_dict['url']">
-                                        <span t-esc="blog_dict['blog'].name"/>
-                                    </a>
-                                    <span t-esc="blog_dict['date']"/>
-                                </li>
-                            </ul>
-                        </t>
+                        <h5 class="border-bottom pb-1">
+                            <i class="fa fa-globe mr-2"/> Likes
+                        </h5>
+                        <ul class="list-group mb-3">
+                            <li t-foreach="user_favorites" t-as="product_dict"
+                                class="list-group-item d-flex justify-content-between">
+                                <a t-att-href="product_dict['url']">
+                                    <span t-esc="product_dict['product'].name"/>
+                                </a>
+                                <span t-esc="product_dict['date']"/>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="products">
+                <div t-if="user_blogs" id="profile_tab_content_blogs" role="tabpanel"
+                     t-attf-class="tab-pane #{'active' if not user_products and not user_favorites else ''}">
                     <div class="mb32">
-                        <t t-if="user_products">
-                            <h5 class="border-bottom pb-1">
-                                <i class="fa fa-globe mr-2"/> Store
-                            </h5>
-
-                            <ul class="list-group mb-3">
-                                <li t-foreach="user_products" t-as="product_dict"
-                                    class="list-group-item d-flex justify-content-between">
-                                    <a t-att-href="product_dict['url']">
-                                        <span t-esc="product_dict['product'].name"/>
-                                    </a>
-                                    <span t-esc="product_dict['date']"/>
-                                </li>
-                            </ul>
-                        </t>
+                        <h5 class="border-bottom pb-1">
+                            <i class="fa fa-globe mr-2"/> Videos
+                        </h5>
+                        <ul class="list-group mb-3">
+                            <li t-foreach="user_blogs" t-as="blog_dict"
+                                class="list-group-item d-flex justify-content-between">
+                                <a t-att-href="blog_dict['url']">
+                                    <span t-esc="blog_dict['blog'].name"/>
+                                </a>
+                                <span t-esc="blog_dict['date']"/>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
-                <div role="tabpanel" class="o_wforum_profile_tab tab-pane" id="favorites">
+                <div t-if="user_events" id="profile_tab_content_events" role="tabpanel"
+                     t-attf-class="tab-pane #{'active' if not user_products and not user_favorites and not user_blogs else ''}">
                     <div class="mb32">
-                        <t t-if="user_favorites">
-                            <h5 class="border-bottom pb-1">
-                                <i class="fa fa-globe mr-2"/> Likes
-                            </h5>
-
-                            <ul class="list-group mb-3">
-                                <li t-foreach="user_favorites" t-as="product_dict"
-                                    class="list-group-item d-flex justify-content-between">
-                                    <a t-att-href="product_dict['url']">
-                                        <span t-esc="product_dict['product'].name"/>
-                                    </a>
-                                    <span t-esc="product_dict['date']"/>
-                                </li>
-                            </ul>
-                        </t>
+                        <h5 class="border-bottom pb-1">
+                            <i class="fa fa-globe mr-2"/> Events
+                        </h5>
+                        <ul class="list-group mb-3">
+                            <li t-foreach="user_events" t-as="event_dict"
+                                class="list-group-item d-flex justify-content-between">
+                                <a t-att-href="event_dict['url']">
+                                    <i t-if="not event_dict['event'].website_published"
+                                       class="fa fa-ban text-danger mr-1" role="img" aria-label="Unpublished"
+                                       title="Unpublished"/>
+                                    <span t-esc="event_dict['event'].name"
+                                          t-attf-class="#{(not event_dict['event'].website_published) and 'text-danger' or ''}"/>
+                                </a>
+                                <span t-esc="event_dict['date']"/>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+            </xpath>
+
+            <xpath expr="//div[@id='profile_tab_content_about']" position="attributes">
+                <attribute name="class"></attribute>
+                <attribute name="t-attf-class">
+                    tab-pane
+                    #{'active' if not user_products and not user_favorites and not user_blogs and not user_events else ''}
+                </attribute>
             </xpath>
         </template>
 
