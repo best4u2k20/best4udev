@@ -29,7 +29,7 @@
                     <li class="nav-item">
                         <a t-if="user_products or user_favorites" role="tab" aria-controls="products" href="#profile_tab_content_products"
                            class="nav-link o_wprofile_navlink active"
-                           data-toggle="tab">Stores</a>
+                           data-toggle="tab">Products</a>
                     </li>
 
                     <li class="nav-item">
