@@ -27,15 +27,9 @@
             <xpath expr="//ul[@id='profile_extra_info_tablist']" position="replace">
                 <ul class="nav nav-tabs o_wprofile_nav_tabs flex-nowrap" role="tablist" id="profile_extra_info_tablist">
                     <li class="nav-item">
-                        <a t-if="user_products" role="tab" aria-controls="products" href="#profile_tab_content_products"
+                        <a t-if="user_products or user_favorites" role="tab" aria-controls="products" href="#profile_tab_content_products"
                            class="nav-link o_wprofile_navlink active"
                            data-toggle="tab">Stores</a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#profile_tab_content_favorites"
-                           t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products else ''}"
-                           data-toggle="tab">Likes</a>
                     </li>
 
                     <li class="nav-item">
@@ -59,11 +53,11 @@
             </xpath>
 
             <xpath expr="//div[@id='profile_extra_info_tabcontent']" position="inside">
-                <div t-if="user_products" id="profile_tab_content_products" role="tabpanel"
+                <div t-if="user_products or user_favorites" id="profile_tab_content_products" role="tabpanel"
                      class="tab-pane active">
-                    <div class="mb32">
+                    <div t-if="user_products" class="mb32">
                         <h5 class="border-bottom pb-1">
-                            <i class="fa fa-globe mr-2"/> Store
+                            <i class="fa fa-globe mr-2"/> Products
                         </h5>
                         <ul class="list-group mb-3">
                             <li t-foreach="user_products" t-as="product_dict"
@@ -75,11 +69,8 @@
                             </li>
                         </ul>
                     </div>
-                </div>
 
-                <div t-if="user_favorites" id="profile_tab_content_favorites" role="tabpanel"
-                     t-attf-class="tab-pane #{'active' if not user_products else ''}">
-                    <div class="mb32">
+                    <div t-if="user_favorites" class="mb32">
                         <h5 class="border-bottom pb-1">
                             <i class="fa fa-globe mr-2"/> Likes
                         </h5>
