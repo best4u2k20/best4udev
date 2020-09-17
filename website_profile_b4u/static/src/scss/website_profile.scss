@@ -73,7 +73,7 @@
 
 .o_wprofile_tabs_content {
     @include media-breakpoint-down(sm) {
-        //background-color: $nav-tabs-link-active-bg;
+        background-color: $owprofile-color-bg;
         padding:0 ($grid-gutter-width * 0.5);
     }
 
