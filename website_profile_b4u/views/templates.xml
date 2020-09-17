@@ -23,30 +23,38 @@
             <xpath expr="//div[@id='profile_about_badge']" position="replace">
             </xpath>
 
-            <xpath expr="//ul[@id='profile_extra_info_tablist']/li" position="before">
-                <li class="nav-item">
-                    <a t-if="user_products" role="tab" aria-controls="products" href="#products"
-                       class="nav-link o_wprofile_navlink"
-                       data-toggle="tab">Stores</a>
-                </li>
+            <xpath expr="//ul[@id='profile_extra_info_tablist']" position="replace">
+                <ul class="nav nav-tabs o_wprofile_nav_tabs flex-nowrap" role="tablist" id="profile_extra_info_tablist">
+                    <li class="nav-item">
+                        <a t-if="user_products" role="tab" aria-controls="products" href="#products"
+                           class="nav-link o_wprofile_navlink active"
+                           data-toggle="tab">Stores</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#favorites"
-                       class="nav-link o_wprofile_navlink"
-                       data-toggle="tab">Likes</a>
-                </li>
+                    <li class="nav-item">
+                        <a t-if="user_favorites" role="tab" aria-controls="favorites" href="#favorites"
+                           t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products else ''}"
+                           data-toggle="tab">Likes</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a t-if="user_blogs" role="tab" aria-controls="blogs" href="#blogs"
-                       class="nav-link o_wprofile_navlink"
-                       data-toggle="tab">Videos</a>
-                </li>
+                    <li class="nav-item">
+                        <a t-if="user_blogs" role="tab" aria-controls="blogs" href="#blogs"
+                           t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products and not user_favorites else ''}"
+                           data-toggle="tab">Videos</a>
+                    </li>
 
-                <li class="nav-item">
-                    <a t-if="user_events" role="tab" aria-controls="events" href="#events"
-                       class="nav-link o_wprofile_navlink"
-                       data-toggle="tab">Events</a>
-                </li>
+                    <li class="nav-item">
+                        <a t-if="user_events" role="tab" aria-controls="events" href="#events"
+                           t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products and not user_favorites and not user_blogs else ''}"
+                           data-toggle="tab">Events</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a role="tab" aria-controls="about" href="#profile_tab_content_about"
+                           t-attf-class="nav-link o_wprofile_navlink #{'active' if not user_products and not user_favorites and not user_blogs and not user_events else ''}"
+                           data-toggle="tab">About</a>
+                    </li>
+                </ul>
             </xpath>
 
             <xpath expr="//div[@id='profile_extra_info_tabcontent']" position="inside">
