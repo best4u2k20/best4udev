@@ -30,8 +30,6 @@
             white-space: nowrap;
         }
     }
-
-
 }
 
 .o_wprofile_gradient {
@@ -60,7 +58,7 @@
 
 .o_wprofile_pict {
     @include size(100%);
-    padding-top: 100%;
+    padding-top: 30%;
     background-size: cover;
     background-position: center;
 
