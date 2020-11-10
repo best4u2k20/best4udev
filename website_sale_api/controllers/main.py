@@ -5,6 +5,7 @@ from odoo import http
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.http import request
 from odoo.osv import expression
+from .serialization import serialize_order
 
 
 class WebsiteSaleAPI(WebsiteSale):
@@ -50,7 +51,7 @@ class WebsiteSaleAPI(WebsiteSale):
 
         if not sudo_record[field]:
             return False
-        
+
         sha = hashlib.sha1(str(getattr(sudo_record, '__last_update')).encode('utf-8')).hexdigest()[0:7]
         size = '' if size is None else '/%s' % size
         return '/web/image/%s/%s/%s%s?unique=%s' % (record._name, record.id, field, size, sha)
@@ -130,7 +131,6 @@ class WebsiteSaleAPI(WebsiteSale):
 
         return result
 
-
     @http.route('/shop/api/products', type='json', auth='public', website=True)
     def products(self, page=0, category=None, search='', ppg=20, **post):
         Category = request.env['product.public.category'].sudo()
@@ -197,3 +197,29 @@ class WebsiteSaleAPI(WebsiteSale):
         }
 
         return values
+
+    @http.route(['/shop/api/cart/update'], type='json', auth="public", methods=['POST'], website=True)
+    def api_cart_update(self, product_id, line_id=None, add_qty=None, set_qty=None, ):
+        """This route is called when changing quantity from the cart or adding
+        a product from the wishlist."""
+        order = request.website.sale_get_order(force_create=1)
+        if order.state != 'draft':
+            request.website.sale_reset()
+            return {}
+
+        order._cart_update(product_id=product_id, line_id=line_id, add_qty=add_qty, set_qty=set_qty)
+        if not order.cart_quantity:
+            request.website.sale_reset()
+
+        order = request.website.sale_get_order()
+
+        return serialize_order(order)
+
+    @http.route(['/shop/api/cart'], type='json', auth="public", methods=['POST'], website=True)
+    def api_cart(self, **post):
+        order = request.website.sale_get_order()
+        if order and order.state != 'draft':
+            request.session['sale_order_id'] = None
+            order = request.website.sale_get_order()
+
+        return serialize_order(order)

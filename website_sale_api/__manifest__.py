@@ -6,7 +6,7 @@
     'description': """Website Sale REST API""",
     'category': 'CybEye',
     'version': '1.0',
-    'depends': ['website_sale'],
+    'depends': ['website_sale', 'stock'],
     'installable': True,
     'data': [],
 }
