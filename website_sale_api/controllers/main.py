@@ -200,6 +200,6 @@ class WebsiteSaleAPI(WebsiteSale):
         return country.get_website_sale_countries().read(fields=['id', 'name', 'code'])
 
     @http.route(['/shop/api/states'], type='json', methods=['POST'], auth="public", website=True)
-    def api_countries(self, country_id):
+    def api_states(self, country_id):
         country = request.env['res.country'].browse(country_id)
         return country.get_website_sale_states().read(fields=['id', 'name', 'code'])
