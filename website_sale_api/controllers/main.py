@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import hashlib
+
+from werkzeug.exceptions import Forbidden, NotFound
 
 from odoo import http
 from odoo.addons.website_sale.controllers.main import WebsiteSale
 from odoo.http import request
 from odoo.osv import expression
-from .serialization import serialize_order
+from .serialization import serialize_order, serialize_products, serialize_categories
 
 
 class WebsiteSaleAPI(WebsiteSale):
@@ -45,92 +46,6 @@ class WebsiteSaleAPI(WebsiteSale):
 
         return expression.AND(domains)
 
-    @staticmethod
-    def image_url(record, field, size=None):
-        sudo_record = record.sudo()
-
-        if not sudo_record[field]:
-            return False
-
-        sha = hashlib.sha1(str(getattr(sudo_record, '__last_update')).encode('utf-8')).hexdigest()[0:7]
-        size = '' if size is None else '/%s' % size
-        return '/web/image/%s/%s/%s%s?unique=%s' % (record._name, record.id, field, size, sha)
-
-    def _products_to_json(self, products, max_depth=1, fields=None):
-        if fields is None:
-            fields = [
-                'id',
-                'name',
-                'display_name',
-                'description',
-                'description_purchase',
-                'description_sale',
-                'price',
-                'list_price',
-                'volume',
-                'volume_uom_name',
-                'weight',
-                'weight_uom_name',
-                'sale_ok',
-                'purchase_ok',
-                'is_product_variant',
-                'product_variant_count',
-                'qty_available',
-                'virtual_available',
-                'incoming_qty',
-                'outgoing_qty',
-                'website_url'
-            ]
-
-        result = []
-
-        for product in products:
-            product_json = {
-                'image_128': self.image_url(product, 'image_128'),
-                'image_256': self.image_url(product, 'image_256'),
-                'image_512': self.image_url(product, 'image_512'),
-                'image_1024': self.image_url(product, 'image_1024')
-            }
-
-            for field in fields:
-                if field.endswith('_id') or field.endswith('_ids'):
-                    product_json[field] = product[field].read()
-                else:
-                    product_json[field] = product[field]
-
-            if max_depth > 0:
-                product_json['currency_id'] = product['currency_id'].read(
-                    fields=[
-                        'id', 'display_name', 'symbol', 'decimal_places', 'currency_unit_label',
-                        'currency_subunit_label'
-                    ]
-                )
-                product_json['product_variant_ids'] = self._products_to_json(product['product_variant_ids'],
-                                                                             max_depth=max_depth - 1)
-
-            result.append(product_json)
-
-        return result
-
-    def _categories_to_json(self, categories):
-        result = []
-
-        for categ in categories:
-            categ_json = {
-                'id': categ['id'],
-                'name': categ['name'],
-                'display_name': categ['display_name'],
-                'image_128': self.image_url(categ, 'image_128'),
-                'image_256': self.image_url(categ, 'image_256'),
-                'image_512': self.image_url(categ, 'image_512'),
-                'image_1024': self.image_url(categ, 'image_1024'),
-                'child_id': self._categories_to_json(categ['child_id'])
-            }
-
-            result.append(categ_json)
-
-        return result
-
     @http.route('/shop/api/products', type='json', auth='public', website=True)
     def products(self, page=0, category=None, search='', ppg=20, **post):
         Category = request.env['product.public.category'].sudo()
@@ -140,7 +55,7 @@ class WebsiteSaleAPI(WebsiteSale):
             category = Category
 
         domain = self._get_api_search_domain(search, category, [])
-        print(domain)
+        # print(domain)
         # pricelist_context, pricelist = self._get_pricelist_context()
         # request.context = dict(request.context, pricelist=pricelist.id, partner=request.env.user.partner_id)
 
@@ -169,7 +84,7 @@ class WebsiteSaleAPI(WebsiteSale):
             'search': search,
             # 'category': category.read(),
             # 'pricelist': pricelist.read(),
-            'products': self._products_to_json(products, max_depth=1),
+            'products': serialize_products(products, max_depth=1),
             'search_count': product_count,  # common for all searchbox
             'ppg': ppg,
             # 'categories': categs.read(),
@@ -193,7 +108,7 @@ class WebsiteSaleAPI(WebsiteSale):
         categs = Category.search(categs_domain)
 
         values = {
-            'categories': self._categories_to_json(categs)
+            'categories': serialize_categories(categs)
         }
 
         return values
@@ -223,3 +138,68 @@ class WebsiteSaleAPI(WebsiteSale):
             order = request.website.sale_get_order()
 
         return serialize_order(order)
+
+    @http.route(['/shop/api/address'], type='json', methods=['POST'], auth="public", website=True)
+    def api_address(self, **kw):
+        Partner = request.env['res.partner'].with_context(show_address=1).sudo()
+        order = request.website.sale_get_order()
+        partner_id = int(kw.get('partner_id', -1))
+
+        # IF PUBLIC ORDER
+        if order.partner_id.id == request.website.user_id.sudo().partner_id.id:
+            # Create Billing
+            mode = ('new', 'billing')
+
+        # IF ORDER LINKED TO A PARTNER
+        else:
+            if partner_id > 0:
+                if partner_id == order.partner_id.id:
+                    # Edit billing
+                    mode = ('edit', 'billing')
+                else:
+                    # Edit Shipping
+                    shippings = Partner.search([('id', 'child_of', order.partner_id.commercial_partner_id.ids)])
+                    if partner_id in shippings.mapped('id'):
+                        mode = ('edit', 'shipping')
+                    else:
+                        return Forbidden()
+
+            elif partner_id == -1:
+                # Create Shipping
+                mode = ('new', 'shipping')
+
+            else:  # no mode - refresh without post?
+                return NotFound()
+
+        # IF POSTED
+        if 'submitted' in kw:
+            pre_values = self.values_preprocess(order, mode, kw)
+            errors, error_msg = self.checkout_form_validate(mode, kw, pre_values)
+            post, errors, error_msg = self.values_postprocess(order, mode, pre_values, errors, error_msg)
+
+            if errors:
+                return Forbidden(error_msg)
+            else:
+                partner_id = self._checkout_form_save(mode, post, kw)
+                if mode[1] == 'billing':
+                    order.partner_id = partner_id
+                    order.with_context(not_self_saleperson=True).onchange_partner_id()
+                    # This is the *only* thing that the front end user will see/edit anyway when choosing billing address
+                    order.partner_invoice_id = partner_id
+
+                elif mode[1] == 'shipping':
+                    order.partner_shipping_id = partner_id
+
+                order.message_partner_ids = [(4, partner_id), (3, request.website.partner_id.id)]
+
+        return serialize_order(order)
+
+    @http.route(['/shop/api/countries'], type='json', methods=['POST'], auth="public", website=True)
+    def api_countries(self):
+        country = request.env['res.country'].search([])
+        return country.get_website_sale_countries().read(fields=['id', 'name', 'code'])
+
+    @http.route(['/shop/api/states'], type='json', methods=['POST'], auth="public", website=True)
+    def api_countries(self, country_id):
+        country = request.env['res.country'].browse(country_id)
+        return country.get_website_sale_states().read(fields=['id', 'name', 'code'])
