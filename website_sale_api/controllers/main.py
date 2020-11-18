@@ -95,7 +95,7 @@ class WebsiteSaleAPI(WebsiteSale):
         return values
 
     @http.route('/shop/api/product', type='json', auth='public', website=True)
-    def product(self, product_id=None, **post):
+    def api_product(self, product_id=None, **post):
         Product = request.env['product.template'].sudo()
         return serialize_products(Product.browse(product_id))
 
