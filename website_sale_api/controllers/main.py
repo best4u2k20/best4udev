@@ -94,6 +94,11 @@ class WebsiteSaleAPI(WebsiteSale):
 
         return values
 
+    @http.route('/shop/api/product', type='json', auth='public', website=True)
+    def product(self, product_id=None, **post):
+        Product = request.env['product.template'].sudo()
+        return serialize_products(Product.browse(product_id))
+
     @http.route('/shop/api/categories', type='json', auth='public', website=True)
     def categories(self, categ_ids=None, **post):
         if categ_ids is None:
@@ -200,6 +205,6 @@ class WebsiteSaleAPI(WebsiteSale):
         return country.get_website_sale_countries().read(fields=['id', 'name', 'code'])
 
     @http.route(['/shop/api/states'], type='json', methods=['POST'], auth="public", website=True)
-    def api_states(self, country_id):
+    def api_countries(self, country_id):
         country = request.env['res.country'].browse(country_id)
         return country.get_website_sale_states().read(fields=['id', 'name', 'code'])
