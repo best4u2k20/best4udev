@@ -47,7 +47,7 @@ class WebsiteSaleAPI(WebsiteSale):
         return expression.AND(domains)
 
     @http.route('/shop/api/products', type='json', auth='public', website=True)
-    def products(self, page=0, category=None, search='', ppg=20, **post):
+    def api_products(self, page=0, category=None, search='', ppg=20, **post):
         Category = request.env['product.public.category'].sudo()
         if category:
             category = Category.search([('id', '=', int(category))], limit=1)
@@ -95,12 +95,12 @@ class WebsiteSaleAPI(WebsiteSale):
         return values
 
     @http.route('/shop/api/product', type='json', auth='public', website=True)
-    def product(self, product_id=None, **post):
+    def api_product(self, product_id=None, **post):
         Product = request.env['product.template'].sudo()
         return serialize_products(Product.browse(product_id))
 
     @http.route('/shop/api/categories', type='json', auth='public', website=True)
-    def categories(self, categ_ids=None, **post):
+    def api_categories(self, categ_ids=None, **post):
         if categ_ids is None:
             categ_ids = []
 
